@@ -69,10 +69,12 @@
 <div class="container">
     <h1>Maximizador de Sumas</h1>
 
-    <input type="text" class="input-field" id="lista" name="lista" placeholder="Ingrese el conjunto de valores // [0,1,2,3...]" required>
-    <input type="text" class="input-field" id="limite" name="limite" placeholder="Ingrese el valor Límite" required>
-
-    <button type="submit" class="btn">Ejecutar</button>
+    <!-- Formulario para enviar los datos -->
+    <form action="/interfaz" method="POST">
+        <input type="text" class="input-field" id="lista" name="lista" placeholder="Ingrese el conjunto de valores (ej. 0,1,2,3)" required>
+        <input type="text" class="input-field" id="limite" name="limite" placeholder="Ingrese el valor Límite" required>
+        <button type="submit" class="btn">Ejecutar</button>
+    </form>
 
     <footer>&copy; 2024 Algoritmo Genético</footer>
 </div>
