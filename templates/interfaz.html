@@ -14,6 +14,8 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
+            transition: all 0.5s ease;
+            flex-direction: column; /* Alinear los elementos verticalmente */
         }
 
         .container {
@@ -22,23 +24,36 @@
             border-radius: 15px;
             box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
             text-align: center;
-            width: 400px; /* Aumentar el ancho del contenedor */
+            width: 400px;
+            height: 400px; /* Establecer una altura fija */
+            overflow-y: auto; /* Agregar scroll vertical si el contenido supera la altura */
+            transition: all 0.5s ease;
+        }
+
+        /* Clase para cambiar la posición y el tamaño del primer contenedor */
+        .container-top {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            width: 300px;
+            height: 300px; /* Reducir la altura cuando cambia de posición */
+            padding: 20px;
         }
 
         h1 {
-            font-size: 26px; /* Aumentar un poco el tamaño del título */
+            font-size: 26px;
             color: #333;
             margin-bottom: 25px;
         }
 
         .input-field {
-            width: 100%; /* Asegurar que el input ocupe el 100% del container */
-            padding: 12px; /* Aumentar el padding para una mejor estética */
+            width: 100%;
+            padding: 12px;
             margin-bottom: 20px;
             border: 1px solid #ccc;
             border-radius: 8px;
             font-size: 16px;
-            box-sizing: border-box; /* Garantiza que el padding no desborde */
+            box-sizing: border-box;
         }
 
         .btn {
@@ -62,22 +77,109 @@
             font-size: 12px;
             color: #777;
         }
+
+        /* Estilo del nuevo contenedor que inicialmente está oculto */
+        .solution-container {
+            display: none;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+            width: 60%;  /* Ajustar tamaño según lo que se necesita */
+            height: 400px;  /* Asegura una altura consistente */
+            overflow-y: auto;  /* Permite scroll si es necesario */
+            position: absolute;
+            top: 50px;
+            left: 400px;
+            text-align: center;
+        }
+
+        .solution-container h2 {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 <body>
 
-<div class="container">
+<div class="container" id="container">
     <h1>Maximizador de Sumas</h1>
 
-    <!-- Formulario para enviar los datos -->
-    <form action="/interfaz" method="POST">
+    <form id="input-form">
         <input type="text" class="input-field" id="lista" name="lista" placeholder="Ingrese el conjunto de valores (ej. 0,1,2,3)" required>
         <input type="text" class="input-field" id="limite" name="limite" placeholder="Ingrese el valor Límite" required>
-        <button type="submit" class="btn">Ejecutar</button>
+        <button type="submit" class="btn" id="ejecutar-btn">Ejecutar</button>
     </form>
 
     <footer>&copy; 2024 Algoritmo Genético</footer>
 </div>
+
+<!-- Nuevo contenedor para mostrar soluciones -->
+<div class="solution-container" id="solution-container">
+    <h2>Mejores soluciones por Generación</h2>
+    <ul id="solution-list"></ul> <!-- Lista para las soluciones -->
+</div>
+
+<script>
+    document.getElementById("input-form").addEventListener("submit", function(event) {
+        event.preventDefault(); // Evita que el formulario se envíe de inmediato
+
+        // Mover y cambiar el tamaño del primer contenedor
+        var container = document.getElementById("container");
+        container.classList.add("container-top");
+
+        // Mostrar el nuevo contenedor para soluciones
+        var solutionContainer = document.getElementById("solution-container");
+        solutionContainer.style.display = "block";
+
+        // Limpiar el contenido del contenedor de soluciones
+        var solutionList = document.getElementById("solution-list");
+        solutionList.innerHTML = ""; // Limpiar todo el contenido antes de agregar nuevas soluciones
+
+        // Ahora vamos a enviar el formulario manualmente para ejecutar el algoritmo genético
+        var formData = new FormData(event.target); // Crear un objeto FormData con los datos del formulario
+
+        fetch('/interfaz', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => {
+            if (response.ok) {
+                return fetch('/static/resultados.json'); // Cargar el archivo JSON después de ejecutar el algoritmo
+            } else {
+                throw new Error('Error al ejecutar el algoritmo genético');
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Limpiar la lista antes de añadir soluciones nuevas
+            solutionList.innerHTML = ""; 
+
+            // Mostrar cada solución en una nueva lista con un retraso
+            if (data.registro_mejores_soluciones && data.registro_mejores_soluciones.length > 0) {
+                data.registro_mejores_soluciones.forEach((sol, index) => {
+                    // Usar setTimeout para crear un retraso de medio segundo
+                    setTimeout(() => {
+                        var li = document.createElement("li");
+                        li.textContent = `Generación ${sol.generacion}: Mejor fitness = ${sol.mejor_fitness}, Conjunto = ${sol.conjunto_valores}`;
+                        solutionList.appendChild(li);
+                    }, index * 500); // Retraso acumulativo
+                });
+            } else {
+                var li = document.createElement("li");
+                li.textContent = "No se encontraron soluciones.";
+                solutionList.appendChild(li);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            var li = document.createElement("li");
+            li.textContent = "Error al obtener las soluciones.";
+            solutionList.appendChild(li);
+        });
+    });
+</script>
 
 </body>
 </html>
