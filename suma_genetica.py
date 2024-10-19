@@ -1,7 +1,7 @@
 import random
 
 "Algoritmo maximizador de sumas utilizando el enfoque genético"
-
+registro_mejores_soluciones = []
 # Función para calcular el fitness (la suma de los valores seleccionados)
 def fitness(individuo, valores, limite):
     suma = sum(valores[i] for i in range(len(individuo)) if individuo[i] == 1)
@@ -33,10 +33,14 @@ def mutar(individuo, tasa_mutacion=0.01):
             individuo[i] = 1 - individuo[i]  # Cambiar de 0 a 1 o de 1 a 0
     return individuo
 
-# Algoritmo genético
-def algoritmo_genetico(valores, limite, tamano_poblacion=100, generaciones=500, tasa_mutacion=0.01):
+# Algoritmo genético con registro de mejores soluciones
+def algoritmo_genetico(valores, limite, tamano_poblacion=30, generaciones=100, tasa_mutacion=0.01):
     # Crear la población inicial
     poblacion = [generar_individuo(len(valores)) for _ in range(tamano_poblacion)]
+    
+    # Inicializar variables para registrar el progreso
+    mejor_fitness_historico = 0
+    global registro_mejores_soluciones # Lista para almacenar cuándo cambia la mejor solución
     
     # Ejecutar por un número de generaciones
     for gen in range(generaciones):
@@ -68,17 +72,26 @@ def algoritmo_genetico(valores, limite, tamano_poblacion=100, generaciones=500, 
         mejor_individuo = max(poblacion, key=lambda ind: fitness(ind, valores, limite))
         mejor_fitness = fitness(mejor_individuo, valores, limite)
         
-        # Construir el conjunto de valores que generaron la mejor suma
-        conjunto_valores_mejor = [valores[i] for i in range(len(mejor_individuo)) if mejor_individuo[i] == 1]
-        
+            
+        # Verificar si la mejor solución ha cambiado
+        if mejor_fitness > mejor_fitness_historico:
+            mejor_fitness_historico = mejor_fitness
+            conjunto_valores_mejor = [valores[i] for i in range(len(mejor_individuo)) if mejor_individuo[i] == 1]
+            print("INSIDE IF")
+            print(f"Generación {gen + 1}: Mejor Fitness: {mejor_fitness}, Conjunto de valores: {conjunto_valores_mejor}")
+            # Almacenar la generación y la nueva mejor solución
+            registro_mejores_soluciones.append({
+                'generacion': gen + 1,
+                'mejor_fitness': mejor_fitness,
+                'conjunto_valores': conjunto_valores_mejor
+            })
         # Mostrar el progreso del algoritmo
-        print(f"Generación {gen + 1}: Mejor Fitness: {mejor_fitness}, Conjunto de valores: {conjunto_valores_mejor}")
+            print(f"Generación {gen + 1}: Mejor Fitness: {mejor_fitness}, Conjunto de valores: {conjunto_valores_mejor}")
     
-    # Retornar el mejor individuo encontrado
+    # Retornar el mejor individuo encontrado y el registro de mejores soluciones
     mejor_individuo_final = max(poblacion, key=lambda ind: fitness(ind, valores, limite))
     mejor_fitness_final = fitness(mejor_individuo_final, valores, limite)
-    
-    # Construir el conjunto de valores que dieron la suma máxima
     conjunto_valores = [valores[i] for i in range(len(mejor_individuo_final)) if mejor_individuo_final[i] == 1]
-    
-    return conjunto_valores, mejor_fitness_final
+
+    print(registro_mejores_soluciones)
+    return conjunto_valores, mejor_fitness_final, registro_mejores_soluciones

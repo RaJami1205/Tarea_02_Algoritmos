@@ -1,0 +1,1 @@
+{"mejor_solucion": [4, 6, 9], "mejor_fitness": 19, "registro_mejores_soluciones": [{"generacion": 1, "mejor_fitness": 7, "conjunto_valores": [2, 5]}, {"generacion": 3, "mejor_fitness": 19, "conjunto_valores": [9, 10]}, {"generacion": 77, "mejor_fitness": 17, "conjunto_valores": [2, 6, 9]}, {"generacion": 79, "mejor_fitness": 19, "conjunto_valores": [4, 6, 9]}]}

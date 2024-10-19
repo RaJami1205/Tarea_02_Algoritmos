@@ -1,6 +1,5 @@
-"Tarea 2 Maximizador de Sumas Genéticas // Curso de Análisis de Algoritmos // Diego y Raúl"
-"Página principal"
-
+import json
+import os
 from flask import Flask, render_template, request
 from suma_genetica import algoritmo_genetico
 
@@ -19,10 +18,18 @@ def ejecutar():
     valores = [int(valor.strip()) for valor in valores]  # Convertir cada valor a entero
     limite = int(request.form['limite'])  # Convertir el límite a entero
 
-    suma_maxima = algoritmo_genetico(valores, limite)
+    # Ejecutar el algoritmo genético y obtener las tres variables
+    mejor_solucion, mejor_fitness, registro_mejores_soluciones = algoritmo_genetico(valores, limite)
 
-    print(suma_maxima)
-    
+    data = {
+        'mejor_solucion': mejor_solucion,
+        'mejor_fitness': mejor_fitness,
+        'registro_mejores_soluciones': registro_mejores_soluciones
+    }
+    ruta_static = os.path.join('static', 'resultados.json')
+    with open(ruta_static, 'w') as json_file:
+        json.dump(data, json_file)
+
     return render_template('interfaz.html')
 
 # Iniciamos la plantilla web
